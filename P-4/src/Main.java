@@ -25,7 +25,7 @@ public class Main {
 		puzzle.add(row7);
 		puzzle.add(row8);
 		
-		Solver s = new Solver(puzzle);
+		Puzzle s = new Puzzle(puzzle);
 
 	}
 

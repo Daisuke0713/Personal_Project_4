@@ -3,14 +3,14 @@ import java.util.Arrays;
 /**
  * Given a Sudoku puzzle, this class solves the puzzle
  */
-public class Solver {
+public class Puzzle {
 	
 	private ArrayList<ArrayList<Integer>> puzzle;
 	
 	/**
 	 * Every entry that has no number should be NULL
 	 */
-	public Solver(ArrayList<ArrayList<Integer>> puzzle) {
+	public Puzzle(ArrayList<ArrayList<Integer>> puzzle) {
 		super();
 		this.puzzle = puzzle;
 	}
