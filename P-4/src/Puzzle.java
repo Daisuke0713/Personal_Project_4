@@ -1,11 +1,13 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Stack;
 /**
  * Given a Sudoku puzzle, this class solves the puzzle
  */
 public class Puzzle {
 	
 	private ArrayList<ArrayList<Integer>> puzzle;
+	private ArrayList<ArrayList<Boolean>> visited;
 	
 	/**
 	 * Every entry that has no number should be NULL
@@ -15,12 +17,36 @@ public class Puzzle {
 		this.puzzle = puzzle;
 	}
 	
+	public void SOLVE() {
+		// keep track of the status
+		Stack<Puzzle> stack = new Stack<Puzzle>();
 	
+		
+		
+		
+		
+	}
+	
+	public ArrayList<ArrayList<Integer>> getPuzzle() {
+		return this.puzzle;
+	}
+	
+	public void setPuzzle(int row, int col, int new_num) {
+		puzzle.get(row).set(col, new_num);
+	}
+	
+	public ArrayList<ArrayList<Boolean>> getVisited() {
+		return this.visited;
+	}
+	
+	public void setVisited(int row, int col, Boolean b) {
+		visited.get(row).set(col, b);
+	}
 	
 	/**
-	 * check whether a given puzzle is valid (solvable)
+	 * check whether a given puzzle is valid 
 	 */
-	private Boolean check_valid() {
+	public Boolean check_valid() {
 		// check horizontal
 		for(int i = 0; i < 9; i++) {
 			if(check_duplicate(puzzle.get(i))) {
@@ -70,11 +96,25 @@ public class Puzzle {
 		return false;
 	}
 	
+	/**
+	 * Check if the puzzle is full
+	 */
+	public Boolean check_full() {
+		for(int i = 0; i < 9; i++) {
+			for(int j = 0; j < 9; j++) {
+				if(puzzle.get(i).get(j) == null) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	
 	/**
 	 * Returns a list of number between 1 and 9 that possibly go to the entry (row, col)
 	 */
-	private ArrayList<Integer> possible_list(int row, int col) {
+	public ArrayList<Integer> possible_list(int row, int col) {
 		
 		ArrayList<Integer> list = new ArrayList<Integer>(); // to be returned
 		
