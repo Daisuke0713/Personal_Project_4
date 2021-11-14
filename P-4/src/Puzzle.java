@@ -1,47 +1,96 @@
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Stack;
+import java.lang.Cloneable;
 /**
- * Given a Sudoku puzzle, this class solves the puzzle
+ * Puzzle state with its current cell
  */
-public class Puzzle {
+public class Puzzle{
 	
-	private ArrayList<ArrayList<Integer>> puzzle;
-	private ArrayList<ArrayList<Boolean>> visited;
+	private ArrayList<ArrayList<Cell>> puzzle;
+	private Cell curr_cell;
+	private Boolean visited;
+	//private ArrayList<Integer> available;
+
+	public Puzzle(ArrayList<ArrayList<Cell>> p, Cell c) {
+		super();
+		
+		this.puzzle = p;
+		this.curr_cell = c;
+		this.visited = false;
+		//this.available = this.possible_list();
+	}
 	
 	/**
-	 * Every entry that has no number should be NULL
+	 * Modify the puzzle by creating a deep clone, change the current entry to num, and
+	 * move the current cell by one.
 	 */
-	public Puzzle(ArrayList<ArrayList<Integer>> puzzle) {
-		super();
-		this.puzzle = puzzle;
-	}
-	
-	public void SOLVE() {
-		// keep track of the status
-		Stack<Puzzle> stack = new Stack<Puzzle>();
-	
+	public Puzzle clone(){
+		ArrayList<ArrayList<Cell>> new_puzzle = new ArrayList<ArrayList<Cell>>();
+		for(ArrayList<Cell> cells : puzzle) {
+			ArrayList<Cell> new_cells = new ArrayList<Cell>();
+			for(Cell cell : cells) {
+				Cell new_cell = cell.clone();
+				new_cells.add(new_cell);
+			}
+			new_puzzle.add(new_cells);
+		}
 		
+		return new Puzzle(new_puzzle, new_puzzle.get(this.curr_cell.getRow()).get(this.curr_cell.getCol()));
+	}
+	
+	/**
+	 * Modify the puzzle by creating a deep clone, change the current entry to num, and
+	 * move the current cell by one.
+	 */
+	public Puzzle modify(Integer num) {
+		Puzzle modified_puzzle = this.clone();
+		// change the entry
+		modified_puzzle.getPuzzle().get(this.curr_cell.getRow()).get(this.curr_cell.getCol()).setEntry(num);
+		//move by one
+		if(this.curr_cell.getCol() <= 7) {
+			modified_puzzle.setCurr_cell(modified_puzzle.getPuzzle().get(this.curr_cell.getRow()).get(this.curr_cell.getCol()+1));
+		} else if(this.curr_cell.getRow() != 8 || this.curr_cell.getCol() != 8) {
+			modified_puzzle.setCurr_cell(modified_puzzle.getPuzzle().get(this.curr_cell.getRow()+1).get(0));
+		}
 		
-		
-		
+		return modified_puzzle;
 	}
 	
-	public ArrayList<ArrayList<Integer>> getPuzzle() {
-		return this.puzzle;
+	public ArrayList<ArrayList<Cell>> getPuzzle() {
+		return puzzle;
 	}
 	
-	public void setPuzzle(int row, int col, int new_num) {
-		puzzle.get(row).set(col, new_num);
+	public void setPuzzle(ArrayList<ArrayList<Cell>> new_puzzle) {
+		this.puzzle = new_puzzle;
+	}
+
+	public Cell getCurr_cell() {
+		return curr_cell;
 	}
 	
-	public ArrayList<ArrayList<Boolean>> getVisited() {
-		return this.visited;
+	public void setCurr_cell(Cell c) {
+		this.curr_cell = c;
 	}
 	
-	public void setVisited(int row, int col, Boolean b) {
-		visited.get(row).set(col, b);
+	public Boolean getVisited() {
+		return visited;
 	}
+	
+	public void setVisited(Boolean B) {
+		this.visited = B;
+	}
+	
+	/**
+	public ArrayList<Integer> getAvailable() {
+		return available;
+	}
+	
+	public void removeAvailable(Integer item) {
+		this.available.remove(this.available.indexOf(item));
+	}
+	**/
 	
 	/**
 	 * check whether a given puzzle is valid 
@@ -55,9 +104,9 @@ public class Puzzle {
 		}
 		
 		// check vertical
-		ArrayList<Integer> v = new ArrayList<Integer>();
+		ArrayList<Cell> v = new ArrayList<Cell>();
 		for(int i = 0; i < 9; i++) {
-			for(ArrayList<Integer> arr : puzzle) {
+			for(ArrayList<Cell> arr : puzzle) {
 				v.add(arr.get(i));
 			}
 			if(check_duplicate(v)) {
@@ -67,7 +116,7 @@ public class Puzzle {
 		}
 		
 		// check block
-		ArrayList<Integer> b = new ArrayList<Integer>();
+		ArrayList<Cell> b = new ArrayList<Cell>();
 		for(int i = 0; i < 9; i++) {
 			for(int j = 3*(i%3); j <= 2+3*(i%3); j++) {
 				for(int k = 3*((int)i/3); k <= 2+3*((int)i/3); k++) {
@@ -85,10 +134,10 @@ public class Puzzle {
 	/**
 	 * Check if there is duplicate in a list
 	 */
-	private Boolean check_duplicate(ArrayList<Integer> list) {
+	private Boolean check_duplicate(ArrayList<Cell> list) {
 		for(int i = 0; i < 9; i++) {
 			for(int j = i+1; j < 9; j++) {
-				if(list.get(i) == list.get(j) && list.get(i) != null) {
+				if(list.get(i).getEntry() == list.get(j).getEntry() && list.get(i).getEntry() != null) {
 					return true;
 				}
 			}
@@ -102,52 +151,52 @@ public class Puzzle {
 	public Boolean check_full() {
 		for(int i = 0; i < 9; i++) {
 			for(int j = 0; j < 9; j++) {
-				if(puzzle.get(i).get(j) == null) {
-					return true;
+				if(puzzle.get(i).get(j).getEntry() == null) {
+					return false;
 				}
 			}
 		}
-		return false;
+		return true;
 	}
 	
 	
 	/**
 	 * Returns a list of number between 1 and 9 that possibly go to the entry (row, col)
 	 */
-	public ArrayList<Integer> possible_list(int row, int col) {
+	public ArrayList<Integer> possible_list() {
 		
 		ArrayList<Integer> list = new ArrayList<Integer>(); // to be returned
 		
-		ArrayList<Integer> horizontal = puzzle.get(row); // row
+		ArrayList<Cell> horizontal = puzzle.get(curr_cell.getRow()); // row
 		
-		ArrayList<Integer> vertical = new ArrayList<Integer>(); // vertical
+		ArrayList<Cell> vertical = new ArrayList<Cell>(); // vertical
 		// fill vertical
-		for(ArrayList<Integer> arr : puzzle) {
-			vertical.add(arr.get(col));
+		for(ArrayList<Cell> arr : puzzle) {
+			vertical.add(arr.get(curr_cell.getCol()));
 		}
 		
-		ArrayList<Integer> block = new ArrayList<Integer>(); // block (3 x 3)
+		ArrayList<Cell> block = new ArrayList<Cell>(); // block (3 x 3)
 		int b_num = -1;
-		if(row <= 2) {
-			if(col <= 2) {
+		if(curr_cell.getRow() <= 2) {
+			if(curr_cell.getCol() <= 2) {
 				b_num = 0;
-			} else if(col <= 5) {
+			} else if(curr_cell.getCol() <= 5) {
 				b_num = 1;
 			} else {
 				b_num = 2;
 			}
-		} else if(row <= 5) {
-			if(col <= 2) {
+		} else if(curr_cell.getRow() <= 5) {
+			if(curr_cell.getCol() <= 2) {
 				b_num = 3;
-			} else if(col <= 5) {
+			} else if(curr_cell.getCol() <= 5) {
 				b_num = 4;
 			} else {
 				b_num = 5;
 			}
 		} else {
-			if(col <= 2) {
+			if(curr_cell.getCol() <= 2) {
 				b_num = 6;
-			} else if(col <= 5) {
+			} else if(curr_cell.getCol() <= 5) {
 				b_num = 7;
 			} else {
 				b_num = 8;
@@ -162,11 +211,26 @@ public class Puzzle {
 		}	
 		
 		// check 
+		boolean exist = false;
+		ArrayList <Cell> new_list = new ArrayList<Cell>();
+		new_list.addAll(horizontal);
+		new_list.addAll(vertical);
+		new_list.addAll(block);
+		
 		for(int i = 1; i <= 9; i++) {
-			if(!horizontal.contains(i) && !vertical.contains(i) && !block.contains(i)) {
+			exist = false;
+			for(Cell c : new_list) {
+				if(c.getEntry() != null && i == c.getEntry()) {
+					exist = true;
+					break;
+				}
+			}
+			if(!exist) {
 				list.add(i);
 			}
 		}
+		
+		
 		return list;
 	}	
 }
