@@ -13,7 +13,7 @@ import javax.swing.JPanel;
 /**
  * Graphic class
  */
-public class Graphic {
+public class Graphic extends JFrame{
 	
 	JFrame window;
 	
@@ -25,8 +25,8 @@ public class Graphic {
 		window.setContentPane(panel);
 		panel.addMouseListener(new Click(panel));
 		
-		window.getContentPane().setBackground(Color.BLACK);
-		window.setSize(450, 450);
+		window.setBackground(Color.BLACK);
+		window.setSize(452, 670);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setVisible(true);
 	}
